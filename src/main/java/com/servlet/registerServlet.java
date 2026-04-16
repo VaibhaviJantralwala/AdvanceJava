@@ -20,6 +20,9 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import com.dao.dataDaoImple;
+import com.model.Student;
+
 /**
  * Servlet implementation class registerServlet
  */
@@ -74,32 +77,24 @@ public class registerServlet extends HttpServlet {
 		InputStream is = file.getInputStream();
 		file.write(uploadPath);	
 			
+		Student student = new Student();
+		student.setName(username);
+		student.setPassword(password);
+		student.setEmail(email);
+		student.setGender(gender);
+		student.setCity(city);
+		student.setDob(sqlDate);
+		student.setLanguage(landata);
+		student.setImage(is);
 		
-		jdbcConn1 conn=new jdbcConn1();
-		Connection con = conn.gConnection();
+		dataDaoImple dao = new dataDaoImple();
+		String s = dao.insertData(student);
 		
-		try {
-		PreparedStatement psmt=con.prepareStatement("insert into employee (name,password,email,dob,gender,language,city,image) values(?,?,?,?,?,?,?,?)");
-		psmt.setString(1, username);
-		psmt.setString(2, password);
-		psmt.setString(3, email);
-		psmt.setDate(4,sqlDate);
-		psmt.setString(5, gender);
-		psmt.setString(6, landata);
-		psmt.setString(7, city);
-		psmt.setBlob(8, is);
-		
-		int i=psmt.executeUpdate();
-		if(i>0) {
-			String s="data inserted Successfully!!";
-			request.setAttribute("msg", s);
+		if( s.equals("success")) {
 			RequestDispatcher rd=request.getRequestDispatcher("RegisterPage.jsp");
 			rd.forward(request, response);
 		}
-	} catch (SQLException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}	
+		
 		doGet(request, response);
 	}
 
