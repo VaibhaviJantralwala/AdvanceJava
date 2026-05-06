@@ -9,19 +9,19 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import com.dao.dataDaoImple;
-import com.model.Customer;
+import com.model.Admin;
 
 /**
- * Servlet implementation class registerServlet
+ * Servlet implementation class AdminServlet
  */
-@WebServlet("/registerServlet")
-public class registerServlet extends HttpServlet {
+@WebServlet("/AdminServlet")
+public class AdminServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public registerServlet() {
+    public AdminServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -40,28 +40,22 @@ public class registerServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		
-		String name = request.getParameter("name");
 		String email = request.getParameter("email");
 		String password = request.getParameter("password");
-		String MobNumber  = request.getParameter("Mobnumber");
-		
-		Customer customer  = new Customer();
-		customer.setName(name);
-		customer.setEmail(email);
-		customer.setPassword(password);
-		customer.setMobNum(MobNumber);
-		
 		
 		dataDaoImple dd = new dataDaoImple();
-		String s = dd.insertUser(customer);
+		Admin a = dd.adminLogin(email, password);
 		
-		if( s.equals("success") ) {
-				RequestDispatcher rd = request.getRequestDispatcher("HomePage.jsp");
-				rd.forward(request, response);
+		if( a != null ) {
+			RequestDispatcher rd = request.getRequestDispatcher("AdminHomePage.jsp");
+			rd.forward(request, response);
+		}
+		else {
+			RequestDispatcher rd = request.getRequestDispatcher("ErrorPage.jsp");
+			rd.forward(request, response);
 		}
 		
 		doGet(request, response);
-
 	}
 
 }

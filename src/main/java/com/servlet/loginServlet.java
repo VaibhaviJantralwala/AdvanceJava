@@ -2,26 +2,32 @@ package com.servlet;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
+import java.sql.PreparedStatement;
 
 import com.dao.dataDaoImple;
 import com.model.Customer;
+import com.model.Student;
 
 /**
- * Servlet implementation class registerServlet
+ * Servlet implementation class loginServlet
  */
-@WebServlet("/registerServlet")
-public class registerServlet extends HttpServlet {
+@MultipartConfig
+@WebServlet("/loginServlet")
+public class loginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public registerServlet() {
+    public loginServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -40,28 +46,32 @@ public class registerServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		
-		String name = request.getParameter("name");
 		String email = request.getParameter("email");
 		String password = request.getParameter("password");
-		String MobNumber  = request.getParameter("Mobnumber");
-		
-		Customer customer  = new Customer();
-		customer.setName(name);
-		customer.setEmail(email);
-		customer.setPassword(password);
-		customer.setMobNum(MobNumber);
-		
+		String redirect = request.getParameter("redirect");
 		
 		dataDaoImple dd = new dataDaoImple();
-		String s = dd.insertUser(customer);
+		Customer s = dd.login(email, password);
 		
-		if( s.equals("success") ) {
-				RequestDispatcher rd = request.getRequestDispatcher("HomePage.jsp");
-				rd.forward(request, response);
+		if(s != null) {
+			
+			HttpSession session = request.getSession();
+			session.setAttribute("user", s);
+		    
+			if( redirect.equals("cart") ) {
+				// go to payment page
+				response.sendRedirect("checkoutServlet");
+			}else {
+				// go to homepage
+				response.sendRedirect("userServlet");
+			}
+		    
+		} else {
+		    response.sendRedirect("ErrorPage.jsp");
+		    return;
 		}
 		
-		doGet(request, response);
-
+//		doGet(request, response);
 	}
 
 }

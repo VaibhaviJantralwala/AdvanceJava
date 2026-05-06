@@ -6,22 +6,21 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 
-import com.dao.dataDaoImple;
-import com.model.Customer;
-
 /**
- * Servlet implementation class registerServlet
+ * Servlet implementation class checkoutServlet
  */
-@WebServlet("/registerServlet")
-public class registerServlet extends HttpServlet {
+@WebServlet("/checkoutServlet")
+public class checkoutServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public registerServlet() {
+    public checkoutServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -31,7 +30,27 @@ public class registerServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
+		
+		HttpSession session = request.getSession(false);
+
+		if( session == null || session.getAttribute("user")==null ) {
+			
+			response.sendRedirect("LoginPage.jsp?redirect=cart");
+			return;
+		}
+		
+		String action = request.getParameter("action");
+		
+		if("success".equals(action)) {
+			session.removeAttribute("cart");
+			response.sendRedirect("userServlet");
+			return;
+		}
+			
+		RequestDispatcher rd = request.getRequestDispatcher("payment.jsp");
+		rd.forward(request, response);	
+		
+//		response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
 
 	/**
@@ -39,29 +58,7 @@ public class registerServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		
-		String name = request.getParameter("name");
-		String email = request.getParameter("email");
-		String password = request.getParameter("password");
-		String MobNumber  = request.getParameter("Mobnumber");
-		
-		Customer customer  = new Customer();
-		customer.setName(name);
-		customer.setEmail(email);
-		customer.setPassword(password);
-		customer.setMobNum(MobNumber);
-		
-		
-		dataDaoImple dd = new dataDaoImple();
-		String s = dd.insertUser(customer);
-		
-		if( s.equals("success") ) {
-				RequestDispatcher rd = request.getRequestDispatcher("HomePage.jsp");
-				rd.forward(request, response);
-		}
-		
 		doGet(request, response);
-
 	}
 
 }
